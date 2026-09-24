@@ -30,7 +30,7 @@ ffmpeg -i my-reel.mov -vf "scale=1920:-2" -c:v libx264 -crf 23 -g 6 -keyint_min 
 
 Aim for 10–30 seconds and under ~25 MB.
 
-**3. Projects** — the five cards under "Selected work" are samples. In `index.html`, change each card's title, description, tool icons and year. To show a real clip, put a video inside `.card__media`:
+**3. Projects** — the "Selected work" section is hidden for now: in `index.html` it sits inside `<template id="work-hidden">`. To show it, delete the `<template>` and `</template>` lines, then change each card's title, description, tool icons and year. To show a real clip, put a video inside `.card__media`:
 
 ```html
 <video src="assets/work-1.mp4" muted loop playsinline></video>
@@ -42,8 +42,8 @@ It plays on hover (desktop) or when visible (phone). An `<img>` works too.
 
 **5. Name, email, socials** — search `index.html` for:
 - `Azhagar` (nav logo, hero name ×2, `data-name` on the reel section, title)
-- `hello@example.com` (appears 4 times in the contact section)
-- the Instagram / Behance / LinkedIn / YouTube links
+- `azhagar154@gmail.com` (4 places in the contact section)
+- the Instagram / LinkedIn / YouTube links
 
 ## UAT and production
 

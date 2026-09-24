@@ -324,8 +324,9 @@
   /* ---------- Work: horizontal scroll on wide screens ---------- */
   const mm = gsap.matchMedia();
   mm.add('(min-width: 900px)', () => {
-    root.classList.add('is-hscroll');
     const work = $('.work');
+    if (!work) return undefined; // section hidden until real projects are added
+    root.classList.add('is-hscroll');
     const track = $('.work__track');
     const viewport = $('.work__viewport');
     const bar = $('.work__progress i');

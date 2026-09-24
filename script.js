@@ -379,24 +379,17 @@
     }
   });
 
-  /* ---------- Skills: tiles fly in and assemble ---------- */
-  const tools = $$('.tool');
-  gsap.from(tools, {
-    x: () => gsap.utils.random(-innerWidth * 0.35, innerWidth * 0.35),
-    y: () => gsap.utils.random(140, 420),
-    rotation: () => gsap.utils.random(-50, 50),
-    scale: 0.4,
-    opacity: 0,
-    ease: 'power3.out',
-    stagger: { each: 0.05, from: 'random' },
-    scrollTrigger: { trigger: '.skills__grid', start: 'top 95%', end: 'top 40%', scrub: 1, invalidateOnRefresh: true },
-  });
-  $$('.tool__bar i').forEach((bar) => {
-    gsap.from(bar, {
-      scaleX: 0,
-      duration: 1.6,
-      ease: 'expo.out',
-      scrollTrigger: { trigger: bar, start: 'top 92%', toggleActions: 'play none none reverse' },
+  /* ---------- Skills: each tier's tiles fly in and assemble ---------- */
+  $$('.skills__grid').forEach((grid) => {
+    gsap.from($$('.tool', grid), {
+      x: () => gsap.utils.random(-innerWidth * 0.35, innerWidth * 0.35),
+      y: () => gsap.utils.random(140, 420),
+      rotation: () => gsap.utils.random(-50, 50),
+      scale: 0.4,
+      opacity: 0,
+      ease: 'power3.out',
+      stagger: { each: 0.05, from: 'random' },
+      scrollTrigger: { trigger: grid, start: 'top 95%', end: 'top 45%', scrub: 1, invalidateOnRefresh: true },
     });
   });
   if (finePointer) {

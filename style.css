@@ -802,6 +802,25 @@ button { font: inherit; color: inherit; }
 .contact__title .line { display: block; overflow: hidden; padding-bottom: .02em; }
 .contact__title .line > span { display: inline-block; }
 .contact__row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 32px; margin-top: clamp(40px, 7vh, 72px); }
+.contact__channels { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 28px 48px; min-width: 0; }
+.wa {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 20px 14px 14px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--ink-2);
+  text-decoration: none;
+  transition: border-color .35s, background-color .35s;
+}
+.wa:hover { border-color: rgba(37, 211, 102, .6); background: rgba(37, 211, 102, .06); }
+.wa__qr { width: 112px; height: 112px; flex: none; padding: 6px; border-radius: 14px; background: #FFFFFF; }
+.wa__text { display: grid; gap: 6px; }
+.wa__num { font-weight: 600; font-stretch: 90%; font-size: clamp(20px, 2.2vw, 30px); line-height: 1.1; font-variant-numeric: tabular-nums; }
+.wa__cta { display: inline-flex; align-items: center; gap: 8px; font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: #4ADE80; }
+.wa__cta svg { width: 20px; height: 20px; }
+.wa__hint { font: 500 11px/1.3 var(--mono); color: var(--mute); }
 .contact__mail { display: grid; grid-template-columns: auto auto; align-items: end; justify-content: start; gap: 10px 16px; min-width: 0; }
 .contact__label { grid-column: 1 / -1; font: 500 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--mute); }
 .mail {
@@ -901,6 +920,8 @@ button { font: inherit; color: inherit; }
   .svc__row { grid-template-columns: 1fr auto; }
   .svc__desc { grid-column: 1 / -1; grid-row: 2; }
   .reel__cap { display: none; }
+  .wa__qr, .wa__hint { display: none; }  /* you can't scan your own phone screen */
+  .wa { padding: 16px 20px; }
 }
 @media (max-width: 480px) {
   .tool__card { min-height: 210px; }

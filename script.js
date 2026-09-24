@@ -207,7 +207,8 @@
     if (lenis) lenis.stop();
     const bar = $('.loader__bar i', loader);
     const pct = $('.loader__pct', loader);
-    const tc = $('.loader__tc', loader);
+    const stage = $('.loader__stage', loader);
+    const STAGES = ['Discovery', 'Gap analysis', 'Prototype', 'Build', 'Ship'];
     const count = { v: 0 };
     gsap.timeline({
       onComplete: () => {
@@ -224,7 +225,7 @@
         onUpdate: () => {
           bar.style.transform = `scaleX(${count.v / 100})`;
           pct.textContent = `${Math.round(count.v)}%`;
-          tc.textContent = timecode((count.v / 100) * 5.5);
+          stage.textContent = count.v >= 100 ? 'Ready' : STAGES[Math.floor((count.v / 100) * STAGES.length)];
         },
       })
       .to('.loader__box', { opacity: 0, y: -12, duration: 0.35, ease: 'power2.in' }, '+=0.1')

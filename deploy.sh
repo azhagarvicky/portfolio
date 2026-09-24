@@ -78,10 +78,11 @@ git -C "$TMP" -c user.name="$(git config user.name)" -c user.email="$(git config
   commit -q -m "Deploy $COMMIT to $ENV"
 git_gh -C "$TMP" push -q -f "https://github.com/$REPO.git" gh-pages
 
-# First deploy: switch GitHub Pages on. Every deploy: keep the domain set and
+# First deploy: switch GitHub Pages on (pushing gh-pages often does this by
+# itself, so "already enabled" is fine). Every deploy: keep the domain set and
 # turn on HTTPS-only once GitHub has issued the certificate.
 if ! gh api "repos/$REPO/pages" >/dev/null 2>&1; then
-  gh api -X POST "repos/$REPO/pages" -f "source[branch]=gh-pages" -f "source[path]=/" >/dev/null
+  gh api -X POST "repos/$REPO/pages" -f "source[branch]=gh-pages" -f "source[path]=/" >/dev/null 2>&1 || true
 fi
 gh api -X PUT "repos/$REPO/pages" -f cname="$HOST" >/dev/null 2>&1 || true
 gh api -X PUT "repos/$REPO/pages" -F https_enforced=true >/dev/null 2>&1 || true

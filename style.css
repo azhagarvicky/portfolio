@@ -110,6 +110,11 @@ button { font: inherit; color: inherit; }
 .loader__bar { height: 3px; margin: 14px 0; background: rgba(239, 235, 247, .1); border-radius: 2px; overflow: hidden; }
 .loader__bar i { display: block; height: 100%; background: var(--lav); transform: scaleX(0); transform-origin: left; }
 
+/* Reel mode (#play): wait for a tap, no cursor in the recording */
+.is-reel .loader { animation: none; cursor: pointer; }
+.is-reel .loader__stage { color: var(--lav); }
+.is-reel .cursor { display: none !important; }
+
 /* ---------- Grain ---------- */
 .grain {
   position: fixed;

@@ -201,7 +201,8 @@
     .from('.nav > *', { y: -24, opacity: 0, duration: 1, stagger: 0.07 }, 0.5)
     .from('.hero__foot > *', { y: 30, opacity: 0, duration: 1, stagger: 0.08 }, 0.75);
 
-  /* ---------- Loader: a fake render dialog ---------- */
+  /* ---------- Loader: a product pipeline ---------- */
+  const reelMode = root.classList.contains('is-reel');
   if (loader) {
     root.classList.add('is-loading');
     if (lenis) lenis.stop();
@@ -210,12 +211,13 @@
     const stage = $('.loader__stage', loader);
     const STAGES = ['Discovery', 'Gap analysis', 'Prototype', 'Build', 'Ship'];
     const count = { v: 0 };
-    gsap.timeline({
+    const runLoader = () => gsap.timeline({
       onComplete: () => {
         loader.remove();
         root.classList.remove('is-loading');
         if (lenis) lenis.start();
         ScrollTrigger.refresh();
+        if (reelMode) gsap.delayedCall(1.6, playReel);
       },
     })
       .to(count, {
@@ -231,8 +233,17 @@
       .to('.loader__box', { opacity: 0, y: -12, duration: 0.35, ease: 'power2.in' }, '+=0.1')
       .fromTo(loader, { clipPath: 'inset(0% 0% 0% 0%)' }, { clipPath: 'inset(0% 0% 100% 0%)', duration: 0.9, ease: 'expo.inOut' })
       .add(() => intro.play(), '-=0.55');
+
+    if (reelMode) {
+      // Reel mode waits for a tap, so you can start screen recording first
+      stage.textContent = 'Tap to start';
+      loader.addEventListener('pointerdown', () => { stage.textContent = STAGES[0]; runLoader(); }, { once: true });
+    } else {
+      runLoader();
+    }
   } else {
     intro.play();
+    if (reelMode) gsap.delayedCall(2, playReel);
   }
 
   /* ---------- Hero: mouse parallax ---------- */
@@ -499,6 +510,41 @@
     });
     document.documentElement.addEventListener('pointerleave', () => gsap.to(cursor, { opacity: 0, duration: 0.2 }));
     document.documentElement.addEventListener('pointerenter', () => gsap.to(cursor, { opacity: 1, duration: 0.2 }));
+  }
+
+  /* ---------- Reel mode (azhagar.com/#play): the page plays itself, ~28s, for a screen-recorded Instagram reel ---------- */
+  function playReel() {
+    const top = (el) => el.getBoundingClientRect().top + window.scrollY;
+    const vh = () => window.innerHeight;
+    const smooth = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+    const steady = (x) => x;
+    const glide = (y, duration, easing = smooth) => new Promise((done) => {
+      if (lenis) lenis.scrollTo(Math.max(0, y), { duration, easing, force: true, lock: true, onComplete: done });
+      else { window.scrollTo({ top: y, behavior: 'smooth' }); setTimeout(done, duration * 1000); }
+    });
+    const hold = (s) => new Promise((done) => setTimeout(done, s * 1000));
+    const reelPin = ScrollTrigger.getAll().find((st) => st.pin && st.trigger.classList.contains('reel'));
+    const tiers = $$('.tier');
+    const about = $('.about__text');
+
+    (async () => {
+      if (reelPin) {
+        await glide(reelPin.start, 1.0);
+        await glide(reelPin.end, 5.0, steady); // the showreel grows and plays
+      }
+      if (tiers.length) {
+        await glide(top(tiers[0]) - vh() * 0.12, 2.0);
+        await hold(0.9);
+        await glide(top(tiers[tiers.length - 1]) - vh() * 0.3, 1.6);
+        await hold(0.4);
+      }
+      if (about) await glide(top(about) + about.offsetHeight - vh() * 0.45, 2.8, steady);
+      await glide(top($('.svc')) - vh() * 0.1, 1.6);
+      await hold(1.0);
+      await glide(top($('.contact__row')) - vh() * 0.35, 2.2);
+      await hold(2.2);
+      await glide(document.documentElement.scrollHeight - vh(), 1.2);
+    })();
   }
 
   /* ---------- Nav timecode + current sequence ---------- */

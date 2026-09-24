@@ -45,26 +45,23 @@ It plays on hover (desktop) or when visible (phone). An `<img>` works too.
 - `hello@example.com` (appears 4 times in the contact section)
 - the Instagram / Behance / LinkedIn / YouTube links
 
-## Deploying: UAT and production
+## UAT and production
 
-| Environment | URL | GitHub repo (served from `gh-pages`) |
-|---|---|---|
-| UAT | https://uat.azhagar.com | `azhagarvicky/portfolio-uat` |
-| Production | https://azhagar.com | `azhagarvicky/portfolio` (source code lives on `main`) |
-
-Release flow — always UAT first:
+| Environment | URL | Updates when | Hosted by |
+|---|---|---|---|
+| UAT | https://uat.azhagar.com | **Automatically**, on every push to `main` | `azhagarvicky/portfolio` (this repo) |
+| Production | https://azhagar.com | **Only when you release** | `azhagarvicky/portfolio-production` |
 
 ```bash
 git add -A && git commit -m "Describe the change"
-./deploy.sh uat        # check it on uat.azhagar.com
-./deploy.sh prod       # asks for confirmation, then goes live
-git push               # back up the source code
+git push              # → uat.azhagar.com updates in ~1 minute
+./release.sh          # → azhagar.com gets exactly what is on UAT (asks first)
 ```
 
-- Only committed work can be deployed; `./deploy.sh prod` warns if that commit hasn't been on UAT.
-- UAT shows a red "UAT · commit" badge, has `[UAT]` in the tab title, and tells search engines not to index it.
-- Each site serves `/version.txt` showing which commit is live.
-- **Roll back** production: `git checkout <older-commit> && ./deploy.sh prod --yes && git checkout main`.
+- No terminal? On GitHub open **portfolio-production → Actions → Deploy production → Run workflow**.
+- **Roll back:** `./release.sh <older-commit>`, or paste that commit into the workflow's "ref" box.
+- UAT shows a red "UAT · commit" badge and `[UAT]` in the tab title, and is hidden from search engines. Both sites serve `/version.txt` with the live commit.
+- `./build.sh uat dist/uat` builds a copy locally if you want to inspect the output.
 
 ### DNS (GoDaddy → Domain → DNS → DNS Records)
 
@@ -77,4 +74,4 @@ git push               # back up the source code
 | CNAME | www | azhagarvicky.github.io |
 | CNAME | uat | azhagarvicky.github.io |
 
-Delete GoDaddy's default `A @ → Parked` record, and change an existing `CNAME www → @` to the value above. Don't touch MX/TXT records if you use email on the domain. HTTPS turns on automatically within about an hour once DNS resolves; the next `./deploy.sh` run then forces HTTPS.
+Leave the NS, SOA, `_domainconnect` and `_dmarc` records as they are.

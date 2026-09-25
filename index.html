@@ -229,32 +229,31 @@
   </section>
 
   <!-- ============ SHOWREEL: the video scrubs as you scroll ============ -->
-  <section class="reel" id="reel" data-seq="Showreel" data-name="Azhagar">
+  <section class="reel" id="reel" data-seq="Showreel">
     <div class="reel__frame" data-cursor="Scroll">
-      <canvas class="reel__canvas" role="img" aria-label="Showreel preview"></canvas>
-      <!-- Drop your showreel at assets/showreel.mp4 and it replaces the canvas preview automatically -->
-      <video class="reel__video" src="assets/showreel.mp4" muted playsinline preload="auto" aria-label="Showreel"></video>
+      <!-- Walk-in: 100 cut-out frames in assets/walk/ (made from a Kling AI video), played by scroll -->
+      <div class="stage" aria-hidden="true">
+        <p class="stage__kicker"><span>AI Product Manager</span><span>Vibe Coder</span></p>
+        <p class="stage__name">Azhagar</p>
+        <span class="stage__floor"></span>
+      </div>
+      <canvas class="reel__walk" role="img" aria-label="Azhagar walking toward the camera"></canvas>
     </div>
     <h2 class="reel__title" aria-label="Showreel">
       <span class="reel__w reel__w--l" aria-hidden="true">Show</span>
       <span class="reel__w reel__w--r" aria-hidden="true">reel</span>
     </h2>
-    <p class="reel__cap"><b></b>Showreel 2026 · Edit · Motion · Colour</p>
+    <p class="reel__cap"><b></b>Showreel 2026 · Made with AI</p>
     <p class="reel__hint">Keep scrolling to play ↓</p>
 
     <div class="timeline" aria-hidden="true">
       <div class="timeline__bar"><span>Sequence 01 · Showreel_2026</span><span class="timeline__tc" data-reel-tc>00:00:00:00</span></div>
       <div class="timeline__tracks">
         <div class="track"><b>V2</b><div class="lane">
-          <i class="clip clip--fx" style="left:3%;width:16%">Title</i>
-          <i class="clip clip--fx" style="left:52%;width:19%">Lower third</i>
-          <i class="clip clip--fx" style="left:79%;width:19%">End card</i>
+          <i class="clip clip--fx" style="left:2%;width:96%">Title · AZHAGAR</i>
         </div></div>
         <div class="track"><b>V1</b><div class="lane">
-          <i class="clip" style="left:0;width:24.7%">Shot 01 · Golden hour</i>
-          <i class="clip" style="left:25%;width:24.7%">Shot 02 · City lights</i>
-          <i class="clip" style="left:50%;width:24.7%">Shot 03 · Motion</i>
-          <i class="clip" style="left:75%;width:25%">Shot 04 · Title</i>
+          <i class="clip" style="left:0;width:100%">Walk-in · Kling 3.0 · green screen removed</i>
         </div></div>
         <div class="track"><b>A1</b><div class="lane">
           <i class="clip clip--audio" style="left:0;width:100%"></i>

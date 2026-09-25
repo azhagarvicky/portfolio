@@ -15,7 +15,6 @@
 
   const FPS = 24;
   const PAGE_SECONDS = 96; // the whole page "runs" this long on the nav timecode
-  const FILM_SECONDS = 16; // length of the canvas stand-in reel
 
   const timecode = (seconds) => {
     const frames = Math.max(0, Math.floor(seconds * FPS));
@@ -297,14 +296,15 @@
 
   /* ---------- Showreel: frame grows to full screen, video scrubs with scroll ---------- */
   if (reel) {
+    // Small starting window: portrait-ish and a little high, so the walk-in shows head to knees
     const smallInset = () => {
       const vw = innerWidth;
       const vh = innerHeight;
-      const w = vw < 700 ? vw * 0.86 : Math.min(vw * 0.46, 900);
-      const h = Math.min((w * 9) / 16, vh * 0.6);
-      const ix = (vw - w) / 2;
-      const iy = (vh - h) / 2;
-      return `inset(${iy}px ${ix}px ${iy}px ${ix}px round 20px)`;
+      const w = vw < 700 ? vw * 0.86 : Math.min(vw * 0.44, 860);
+      const h = vw < 700 ? vh * 0.66 : Math.min(vh * 0.64, w * 1.05);
+      const top = vh * 0.1;
+      const side = (vw - w) / 2;
+      return `inset(${top}px ${side}px ${vh - h - top}px ${side}px round 20px)`;
     };
 
     gsap.from('.reel__w', {
@@ -568,341 +568,113 @@
   addEventListener('load', () => ScrollTrigger.refresh());
 
   /* ==========================================================
-     Showreel engine
-     Plays assets/showreel.mp4 if it exists; otherwise renders a
-     four-shot stand-in film on canvas. Either way, scroll = time.
+     Showreel engine: the walk-in
+     100 transparent frames (assets/walk/000–099.webp) cut out of
+     a green-screen Kling AI video. Scroll position = frame, so the
+     walk plays forward and backward smoothly on every device.
      ========================================================== */
   function createReel() {
     const section = $('.reel');
     if (!section) return null;
-    const canvas = $('.reel__canvas', section);
+    const canvas = $('.reel__walk', section);
     const ctx = canvas.getContext('2d');
-    const video = $('.reel__video', section);
     const tcEls = $$('[data-reel-tc]', section);
     const timeline = $('.timeline', section);
-    const name = (section.dataset.name || 'Showreel').toUpperCase();
+    const FRAMES = 100;
+    const SECONDS = 5.04;
+    const src = (i) => `assets/walk/${String(i).padStart(3, '0')}.webp`;
+    const frames = new Array(FRAMES);
 
-    let W = 0;
-    let H = 0;
-    let dpr = 1;
     let target = 0;
     let current = 0;
     let raf = 0;
-    let duration = FILM_SECONDS;
-    let useVideo = false;
-    let isStatic = false;
+    let drawn = -1;
+    let cw = 0;
+    let ch = 0;
 
-    // Seeded random so the "set" looks the same every visit
-    let seed = 7;
-    const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
-    const city = [0, 1, 2].map((layer) => {
-      const out = [];
-      let x = 0;
-      while (x < 2) {
-        const w = 0.03 + rnd() * 0.06;
-        out.push({ x, w, h: 0.18 + rnd() * (0.22 + layer * 0.1), lit: Array.from({ length: 61 }, () => rnd() < 0.34) });
-        x += w + 0.004;
-      }
-      return out;
+    const load = (i) => new Promise((done) => {
+      if (frames[i]) return done();
+      const img = new Image();
+      img.decoding = 'async';
+      img.onload = () => { frames[i] = img; done(); };
+      img.onerror = done;
+      img.src = src(i);
     });
-    const stars = Array.from({ length: 90 }, () => ({ x: rnd(), y: rnd() * 0.55, a: 0.2 + rnd() * 0.6 }));
-    const bokeh = Array.from({ length: 16 }, () => ({ x: rnd(), y: 0.2 + rnd() * 0.6, s: 0.02 + rnd() * 0.07, a: 0.08 + rnd() * 0.16, warm: rnd() > 0.4, sp: 0.05 + rnd() * 0.2 }));
 
-    const grain = document.createElement('canvas');
-    grain.width = grain.height = 160;
-    {
-      const g = grain.getContext('2d');
-      const img = g.createImageData(160, 160);
-      for (let i = 0; i < img.data.length; i += 4) {
-        const v = Math.random() * 255;
-        img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
-        img.data[i + 3] = 30;
-      }
-      g.putImageData(img, 0, 0);
-    }
-    let grainPattern = null;
-
-    const DISPLAY = '"Archivo", "Arial Narrow", sans-serif';
-    const MONO = '"Geist Mono", ui-monospace, monospace';
-    const setFont = (weight, size, family, condensed) => {
-      ctx.font = `${weight} ${Math.round(size)}px ${family}`;
-      if ('fontStretch' in ctx) ctx.fontStretch = condensed ? 'ultra-condensed' : 'normal';
-    };
-    const spaced = (text, x, y, spacing) => {
-      const chars = Array.from(text);
-      const widths = chars.map((c) => ctx.measureText(c).width);
-      const total = widths.reduce((a, b) => a + b, 0) + spacing * (chars.length - 1);
-      let cx = x - total / 2;
-      ctx.textAlign = 'left';
-      chars.forEach((c, i) => { ctx.fillText(c, cx, y); cx += widths[i] + spacing; });
-    };
-
-    function shotGolden(t) {
-      const sky = ctx.createLinearGradient(0, 0, 0, H);
-      sky.addColorStop(0, '#120b26');
-      sky.addColorStop(0.38, '#4b1f55');
-      sky.addColorStop(0.6, '#d45a43');
-      sky.addColorStop(0.74, '#ffb870');
-      sky.addColorStop(1, '#ffe2b0');
-      ctx.fillStyle = sky;
-      ctx.fillRect(0, 0, W, H);
-      const m = Math.min(W, H);
-      const sx = W * 0.5;
-      const sy = H * (0.7 - 0.17 * t);
-      const sr = m * 0.12;
-      const glow = ctx.createRadialGradient(sx, sy, sr * 0.5, sx, sy, sr * 5);
-      glow.addColorStop(0, 'rgba(255,226,170,.85)');
-      glow.addColorStop(0.3, 'rgba(255,170,110,.35)');
-      glow.addColorStop(1, 'rgba(255,140,90,0)');
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, 0, W, H);
-      ctx.fillStyle = '#fff1d2';
-      ctx.beginPath();
-      ctx.arc(sx, sy, sr, 0, Math.PI * 2);
-      ctx.fill();
-      [['#7a2e52', 0.66, 0.03, 1.2], ['#43183f', 0.74, 0.045, 2], ['#1a0b22', 0.84, 0.055, 3.1]].forEach(([col, base, amp, sp], k) => {
-        ctx.fillStyle = col;
-        ctx.beginPath();
-        ctx.moveTo(0, H);
-        for (let x = 0; x <= W + 10; x += 10) {
-          const u = x / W;
-          const y = H * (base + amp * Math.sin(u * (3 + k * 1.6) + k * 2.1 + t * sp) + amp * 0.45 * Math.sin(u * (8 + k * 3) - t * sp * 0.7));
-          ctx.lineTo(x, y);
+    // Coarse frames first (every 10th, then every 5th), then the rest, so scrubbing works early
+    let loadingAll = false;
+    const loadAll = () => {
+      if (loadingAll) return;
+      loadingAll = true;
+      const order = [];
+      [10, 5, 1].forEach((step) => { for (let i = 0; i < FRAMES; i += step) if (!order.includes(i)) order.push(i); });
+      (async () => {
+        for (let k = 0; k < order.length; k += 6) {
+          await Promise.all(order.slice(k, k + 6).map(load));
+          render(true);
         }
-        ctx.lineTo(W, H);
-        ctx.closePath();
-        ctx.fill();
-      });
-    }
+      })();
+    };
 
-    function shotCity(t) {
-      const sky = ctx.createLinearGradient(0, 0, 0, H);
-      sky.addColorStop(0, '#05060f');
-      sky.addColorStop(0.6, '#151238');
-      sky.addColorStop(1, '#2b1b52');
-      ctx.fillStyle = sky;
-      ctx.fillRect(0, 0, W, H);
-      stars.forEach((s) => {
-        ctx.fillStyle = `rgba(230,225,255,${s.a})`;
-        ctx.fillRect(s.x * W, s.y * H, 1.5, 1.5);
-      });
-      const speeds = [0.05, 0.12, 0.24];
-      const colors = ['#1b1942', '#110f2c', '#07070f'];
-      city.forEach((layer, k) => {
-        layer.forEach((b) => {
-          const x = (b.x - t * speeds[k]) * W;
-          const w = b.w * W;
-          if (x > W || x + w < 0) return;
-          const h = b.h * H * (0.9 + k * 0.25);
-          const y = H - h;
-          ctx.fillStyle = colors[k];
-          ctx.fillRect(x, y, w, h);
-          if (k === 0) return;
-          const cell = 7 + k * 3;
-          const cols = Math.floor((w - 6) / cell);
-          const rowsN = Math.floor((h - 10) / (cell * 1.4));
-          for (let r = 0; r < rowsN; r++) {
-            for (let c = 0; c < cols; c++) {
-              if (!b.lit[(r * cols + c) % b.lit.length]) continue;
-              ctx.fillStyle = (r + c) % 5 === 0 ? 'rgba(179,164,255,.75)' : 'rgba(255,205,130,.7)';
-              ctx.fillRect(x + 4 + c * cell, y + 8 + r * cell * 1.4, cell * 0.45, cell * 0.6);
-            }
-          }
-        });
-      });
-      ctx.globalCompositeOperation = 'lighter';
-      bokeh.forEach((b) => {
-        const x = ((((b.x - t * b.sp) % 1) + 1) % 1) * W;
-        const y = b.y * H;
-        const rad = b.s * Math.min(W, H) * 1.6;
-        const col = b.warm ? '255,190,120' : '179,164,255';
-        const g = ctx.createRadialGradient(x, y, 0, x, y, rad);
-        g.addColorStop(0, `rgba(${col},${b.a})`);
-        g.addColorStop(0.7, `rgba(${col},${b.a * 0.6})`);
-        g.addColorStop(1, `rgba(${col},0)`);
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(x, y, rad, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      ctx.globalCompositeOperation = 'source-over';
-    }
-
-    function shotMotion(t) {
-      ctx.fillStyle = '#0d0b15';
-      ctx.fillRect(0, 0, W, H);
-      const cx = W / 2;
-      const cy = H / 2;
-      const m = Math.min(W, H);
-      const step = m / 10;
-      ctx.strokeStyle = 'rgba(239,235,247,.06)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let x = cx % step; x < W; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
-      for (let y = cy % step; y < H; y += step) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
-      ctx.stroke();
-      const palette = ['#b3a4ff', 'rgba(239,235,247,.55)', '#ff6a4d', '#b3a4ff', 'rgba(239,235,247,.3)', '#ffb870'];
-      ctx.lineCap = 'round';
-      for (let k = 0; k < 6; k++) {
-        const rad = m * (0.12 + k * 0.065);
-        const a0 = t * Math.PI * (1.2 + k * 0.45) * (k % 2 ? 1 : -1) + k;
-        ctx.strokeStyle = palette[k];
-        ctx.lineWidth = k % 2 ? 2 : Math.max(3, m * 0.012);
-        ctx.setLineDash(k % 3 === 1 ? [2, 12] : []);
-        ctx.beginPath();
-        ctx.arc(cx, cy, rad, a0, a0 + Math.PI * (0.5 + 0.22 * k));
-        ctx.stroke();
+    const nearestLoaded = (i) => {
+      for (let d = 0; d < FRAMES; d++) {
+        if (frames[i - d]) return i - d;
+        if (frames[i + d]) return i + d;
       }
-      ctx.setLineDash([]);
-      ctx.fillStyle = '#efebf7';
-      ctx.textBaseline = 'middle';
-      setFont(900, m * 0.2, DISPLAY, true);
-      spaced('MOTION', cx, cy, m * (0.005 + 0.05 * t));
-      setFont(500, Math.max(11, m * 0.018), MONO);
-      ctx.fillStyle = '#b3a4ff';
-      ctx.textAlign = 'center';
-      ctx.fillText('KEYFRAMES · EASING · RHYTHM', cx, cy + m * 0.16);
+      return -1;
+    };
+
+    function resize() {
+      const r = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cw = Math.max(1, Math.round(r.width * dpr));
+      ch = Math.max(1, Math.round(r.height * dpr));
+      canvas.width = cw;
+      canvas.height = ch;
+      render(true);
     }
 
-    function shotTitle(t) {
-      ctx.fillStyle = '#0a0910';
-      ctx.fillRect(0, 0, W, H);
-      const m = Math.min(W, H);
-      const cx = W / 2;
-      const cy = H / 2;
-      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, m * 0.8);
-      glow.addColorStop(0, 'rgba(179,164,255,.22)');
-      glow.addColorStop(1, 'rgba(179,164,255,0)');
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, 0, W, H);
-      ctx.save();
-      ctx.translate(cx, cy);
-      const s = 1 + t * 0.08;
-      ctx.scale(s, s);
-      ctx.fillStyle = '#efebf7';
-      ctx.textBaseline = 'middle';
-      setFont(900, Math.min(W * 0.2, m * 0.34), DISPLAY, true);
-      spaced(name, 0, -m * 0.03, m * 0.004);
-      ctx.fillStyle = '#b3a4ff';
-      const lw = W * 0.34 * Math.min(1, t * 1.6);
-      ctx.fillRect(-lw / 2, m * 0.13, lw, 2);
-      setFont(500, Math.max(11, m * 0.02), MONO);
-      ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(239,235,247,.75)';
-      ctx.fillText('SHOWREEL 2026 — EDIT · MOTION · DESIGN', 0, m * 0.19);
-      ctx.restore();
-    }
-
-    const SHOTS = [shotGolden, shotCity, shotMotion, shotTitle];
-
-    function draw(p) {
-      if (!W || !H) return;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'alphabetic';
-      const n = SHOTS.length;
-      const x = Math.min(p * n, n - 0.0001);
-      const i = Math.floor(x);
-      const local = x - i;
-      SHOTS[i](local);
-      if (i > 0 && local < 0.05) { // flash on the cut
-        ctx.fillStyle = `rgba(255,255,255,${(1 - local / 0.05) * 0.28})`;
-        ctx.fillRect(0, 0, W, H);
+    function render(force) {
+      const i = nearestLoaded(Math.round(current * (FRAMES - 1)));
+      if (i >= 0 && (force || i !== drawn)) {
+        ctx.clearRect(0, 0, cw, ch);
+        ctx.drawImage(frames[i], 0, 0, cw, ch);
+        drawn = i;
       }
-      const v = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
-      v.addColorStop(0, 'rgba(0,0,0,0)');
-      v.addColorStop(1, 'rgba(0,0,0,.55)');
-      ctx.fillStyle = v;
-      ctx.fillRect(0, 0, W, H);
-      if (!grainPattern) grainPattern = ctx.createPattern(grain, 'repeat');
-      const ox = Math.random() * 160;
-      const oy = Math.random() * 160;
-      ctx.save();
-      ctx.translate(-ox, -oy);
-      ctx.fillStyle = grainPattern;
-      ctx.fillRect(0, 0, W + 160, H + 160);
-      ctx.restore();
-      const bar = Math.round(H * 0.05); // letterbox
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, W, bar);
-      ctx.fillRect(0, H - bar, W, bar);
-    }
-
-    function render() {
-      const time = current * duration;
-      if (useVideo) {
-        if (!video.seeking && Math.abs(video.currentTime - time) > 0.04) video.currentTime = time;
-      } else {
-        draw(current);
-      }
+      const time = current * SECONDS;
       tcEls.forEach((el) => { el.textContent = timecode(time); });
       if (timeline) timeline.style.setProperty('--p', current.toFixed(4));
+      section.style.setProperty('--walk', current.toFixed(4));
     }
 
     function loop() {
-      current += (target - current) * 0.25;
+      current += (target - current) * 0.3;
       if (Math.abs(target - current) < 0.0005) current = target;
-      render();
+      render(false);
       raf = current !== target ? requestAnimationFrame(loop) : 0;
     }
 
-    function resize() {
-      W = section.clientWidth || innerWidth;
-      H = section.clientHeight || innerHeight;
-      dpr = Math.min(window.devicePixelRatio || 1, W > 1400 ? 1 : 1.5);
-      canvas.width = Math.round(W * dpr);
-      canvas.height = Math.round(H * dpr);
-      grainPattern = null;
-      render();
-    }
-
-    if (video) {
-      const onMeta = () => {
-        if (!Number.isFinite(video.duration) || video.duration <= 0) return;
-        useVideo = true;
-        duration = video.duration;
-        section.classList.add('has-video');
-        if (isStatic) video.controls = true;
-        else render();
-      };
-      const onError = () => {
-        useVideo = false;
-        section.classList.remove('has-video');
-        video.remove();
-        render();
-      };
-      if (video.error) onError();
-      else {
-        if (video.readyState >= 1) onMeta();
-        video.addEventListener('loadedmetadata', onMeta);
-        video.addEventListener('error', onError, { once: true });
-        video.addEventListener('seeked', () => { if (useVideo && !isStatic) render(); });
-        // iOS Safari only paints seeked frames after the video has played once
-        addEventListener('touchstart', () => { video.play().then(() => video.pause()).catch(() => {}); }, { once: true, passive: true });
-      }
-    }
-
-    resize();
-    if ('ResizeObserver' in window) {
-      new ResizeObserver(() => {
-        if (section.clientWidth !== W || section.clientHeight !== H) resize();
-      }).observe(section);
+    load(0).then(() => render(true));
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) { loadAll(); io.disconnect(); }
+      }, { rootMargin: '150% 0px' });
+      io.observe(section);
     } else {
-      addEventListener('resize', resize);
+      loadAll();
     }
-    if (document.fonts) document.fonts.load('900 100px "Archivo"').then(() => render()).catch(() => {});
+    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(canvas);
+    else addEventListener('resize', resize);
+    resize();
 
     return {
       setProgress(p) {
         target = p;
         if (!raf) raf = requestAnimationFrame(loop);
       },
-      resize,
       setStatic() {
-        isStatic = true;
-        current = target = 0.08;
-        if (useVideo) video.controls = true;
-        resize();
+        current = target = 1; // show the close-up
+        load(FRAMES - 1).then(() => render(true));
       },
     };
   }

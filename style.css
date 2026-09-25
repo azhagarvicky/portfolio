@@ -408,10 +408,69 @@ button { font: inherit; color: inherit; }
   background: var(--ink);
 }
 .reel__frame { position: absolute; inset: 0; background: #000; will-change: clip-path; }
-.reel__canvas, .reel__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.reel__video { opacity: 0; }
-.reel.has-video .reel__video { opacity: 1; }
-.reel.has-video .reel__canvas { visibility: hidden; }
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(42% 52% at 50% 44%, rgba(124, 92, 255, .55), rgba(46, 28, 110, .32) 48%, transparent 76%),
+    #09080E;
+}
+.stage__kicker {
+  position: absolute;
+  left: var(--gutter);
+  right: var(--gutter);
+  top: calc(env(safe-area-inset-top, 0px) + 84px);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  font: 500 12px/1 var(--mono);
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--lav);
+}
+.stage__name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 40%;
+  margin: 0;
+  translate: 0 -50%;
+  text-align: center;
+  white-space: nowrap;
+  font-weight: 900;
+  font-stretch: 62%;
+  font-size: clamp(76px, 24vw, 480px);
+  line-height: .8;
+  text-transform: uppercase;
+  letter-spacing: calc(var(--walk, 0) * .03em);
+  transform: scale(calc(1 + var(--walk, 0) * .06));
+  background: linear-gradient(180deg, #F4F1FB 8%, #B3A4FF 55%, #5B49C4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.stage__floor {
+  position: absolute;
+  left: 50%;
+  bottom: var(--walk-bottom);
+  width: min(70vw, 560px);
+  height: 60px;
+  translate: -50% 50%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(179, 164, 255, .35), transparent);
+}
+.reel { --walk-bottom: calc(env(safe-area-inset-bottom, 0px) + 150px); }
+.reel__walk {
+  position: absolute;
+  left: 50%;
+  bottom: var(--walk-bottom);
+  height: calc(100% - var(--walk-bottom) - 64px);
+  aspect-ratio: 468 / 1000;
+  max-width: 100%;
+  translate: -50% 0;
+}
 
 .reel__title {
   position: absolute;
@@ -934,6 +993,8 @@ button { font: inherit; color: inherit; }
   .wa { padding: 16px 20px; }
 }
 @media (max-width: 480px) {
+  .stage__kicker { flex-direction: column; gap: 8px; font-size: 10px; letter-spacing: .2em; }
+  .stage__kicker span:last-child { align-self: flex-end; }
   .tool--feature .tool__card { flex-direction: column; align-items: flex-start; }
   .tool__card { min-height: 210px; }
   .tool h3 { font-size: 18px; }

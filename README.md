@@ -21,14 +21,7 @@ Then open http://localhost:5173. (Opening `index.html` directly also works, but 
 
 **1. Your photo** — save a portrait as `assets/me.jpg` (3:4, about 1200×1600). It replaces the silhouette automatically.
 
-**2. Your showreel** — save it as `assets/showreel.mp4`. It replaces the canvas preview and scrubs as people scroll.
-For buttery scrubbing, re-encode it with frequent keyframes (install ffmpeg with `brew install ffmpeg`):
-
-```bash
-ffmpeg -i my-reel.mov -vf "scale=1920:-2" -c:v libx264 -crf 23 -g 6 -keyint_min 6 -an -movflags +faststart assets/showreel.mp4
-```
-
-Aim for 10–30 seconds and under ~25 MB.
+**2. Showreel walk-in** — the Showreel section plays `assets/walk/000–099.webp` as you scroll: 100 transparent frames cut from a green-screen AI video (Kling). To replace it, make a new vertical video of you on a plain green background, keep it around 5 seconds, and ask Claude to regenerate the frames.
 
 **3. Projects** — the "Selected work" section is hidden for now: in `index.html` it sits inside `<template id="work-hidden">`. To show it, delete the `<template>` and `</template>` lines, then change each card's title, description, tool icons and year. To show a real clip, put a video inside `.card__media`:
 

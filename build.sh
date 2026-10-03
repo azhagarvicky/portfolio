@@ -27,6 +27,8 @@ rm -rf "${OUT:?}"/* "$OUT"/.[!.]* 2>/dev/null || true
 cp -R "$ROOT"/index.html "$ROOT"/style.css "$ROOT"/script.js "$ROOT"/assets "$ROOT"/aruvi-ice-cream "$OUT"/
 find "$OUT" \( -name '.gitkeep' -o -name '.DS_Store' \) -delete
 echo "$COMMIT $(date -u +%Y-%m-%dT%H:%M:%SZ) $ENV" > "$OUT/version.txt"
+# Make browsers fetch the Aruvi page's CSS and JS afresh after every deploy
+COMMIT="$COMMIT" perl -pi -e 's#((?:href|src)="(?:css/style\.css|js/main\.js))"#$1?v=$ENV{COMMIT}"#g' "$OUT/aruvi-ice-cream/index.html"
 
 if [[ "$ENV" == uat ]]; then
   # Keep UAT out of search results with noindex on every page. Crawlers have to be able

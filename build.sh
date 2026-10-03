@@ -20,25 +20,35 @@ fi
 
 COMMIT="$(git -C "$ROOT" rev-parse --short HEAD)"
 
+# Every page on the site, as a path under the domain. Add new pages here.
+PAGES=("" "aruvi-ice-cream/")
+
 rm -rf "${OUT:?}"/* "$OUT"/.[!.]* 2>/dev/null || true
-cp -R "$ROOT"/index.html "$ROOT"/style.css "$ROOT"/script.js "$ROOT"/assets "$OUT"/
-find "$OUT" -name '.gitkeep' -delete
+cp -R "$ROOT"/index.html "$ROOT"/style.css "$ROOT"/script.js "$ROOT"/assets "$ROOT"/aruvi-ice-cream "$OUT"/
+find "$OUT" \( -name '.gitkeep' -o -name '.DS_Store' \) -delete
 echo "$COMMIT $(date -u +%Y-%m-%dT%H:%M:%SZ) $ENV" > "$OUT/version.txt"
 
 if [[ "$ENV" == uat ]]; then
-  # Keep UAT out of search engines and make it obvious which site you're on
-  printf 'User-agent: *\nDisallow: /\n' > "$OUT/robots.txt"
-  perl -0pi -e 's#<head>#<head>\n<meta name="robots" content="noindex, nofollow">#; s#<title>#<title>[UAT] #' "$OUT/index.html"
+  # Keep UAT out of search results with noindex on every page. Crawlers have to be able
+  # to fetch a page to see its noindex, so robots.txt blocks only the image folders.
+  printf 'User-agent: *\nDisallow: /assets/\nDisallow: /aruvi-ice-cream/images/\n' > "$OUT/robots.txt"
   BADGE="<div style=\"position:fixed;top:calc(env(safe-area-inset-top,0px) + 62px);left:50%;transform:translateX(-50%);z-index:300;padding:6px 10px;border-radius:999px;background:#FF4B3E;color:#fff;font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.1em;pointer-events:none\">UAT · $COMMIT</div>"
-  BADGE="$BADGE" perl -0pi -e 's#</body>#$ENV{BADGE}\n</body>#' "$OUT/index.html"
+  for page in "${PAGES[@]}"; do
+    perl -0pi -e 's#<head>#<head>\n<meta name="robots" content="noindex, nofollow">#; s#<title>#<title>[UAT] #' "$OUT/${page}index.html"
+    BADGE="$BADGE" perl -0pi -e 's#</body>#$ENV{BADGE}\n</body>#' "$OUT/${page}index.html"
+  done
+  # Link previews of a UAT page should show UAT's own image, which exists before release
+  perl -pi -e 's#(<meta (?:property="og:(?:url|image)"|name="twitter:image") content=")https://azhagar\.com/#$1https://uat.azhagar.com/#' "$OUT/aruvi-ice-cream/index.html"
 else
   printf 'User-agent: *\nAllow: /\n\nSitemap: https://%s/sitemap.xml\n' "$HOST" > "$OUT/robots.txt"
-  cat > "$OUT/sitemap.xml" <<EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://$HOST/</loc><lastmod>$(date -u +%Y-%m-%d)</lastmod></url>
-</urlset>
-EOF
+  {
+    echo '<?xml version="1.0" encoding="UTF-8"?>'
+    echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    for page in "${PAGES[@]}"; do
+      echo "  <url><loc>https://$HOST/$page</loc><lastmod>$(date -u +%Y-%m-%d)</lastmod></url>"
+    done
+    echo '</urlset>'
+  } > "$OUT/sitemap.xml"
 fi
 
 echo "Built $ENV ($COMMIT) into $OUT"

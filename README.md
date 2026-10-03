@@ -38,6 +38,28 @@ It plays on hover (desktop) or when visible (phone). An `<img>` works too.
 - `azhagar154@gmail.com` (4 places in the contact section)
 - the Instagram / LinkedIn / YouTube links
 
+## Aruvi Ice Cream & Aari Works page
+
+A separate shop website lives in `aruvi-ice-cream/` and is served at `/aruvi-ice-cream/`
+(UAT: https://uat.azhagar.com/aruvi-ice-cream/ · production: https://azhagar.com/aruvi-ice-cream/).
+It has its own CSS, JS and images, so it never touches the portfolio.
+
+```
+aruvi-ice-cream/index.html   all text, products, brands and contact details
+aruvi-ice-cream/css/         styles (scoped to this page)
+aruvi-ice-cream/js/main.js   filters, gallery, menu, WhatsApp/call buttons
+aruvi-ice-cream/images/      product, shop and Aari pictures
+```
+
+- **Contact details:** in the Visit section of `index.html`, replace each `To be added` placeholder.
+  The Call and WhatsApp buttons switch on by themselves from the numbers written there. Also add
+  the confirmed details to the JSON-LD block in `<head>`.
+- **Products:** copy a `<li class="product">` block in the catalogue. The comment above it lists the
+  category and brand values the filters understand. Remove `<span class="img-tag">` when the picture
+  is a real photo of the pack.
+- **Search:** `build.sh` adds `noindex` to every UAT page and lists every page in the production
+  sitemap. A new page has to be added to `PAGES` in `build.sh`.
+
 ## UAT and production
 
 | Environment | URL | Updates when | Hosted by |

@@ -65,6 +65,7 @@ button { font: inherit; color: inherit; }
 .h2 em,
 .hero__role em,
 .contact__title em,
+.projects__title em,
 .card--cta__title em {
   font-family: var(--serif);
   font-style: italic;
@@ -379,6 +380,26 @@ button { font: inherit; color: inherit; }
   letter-spacing: .12em;
   color: var(--mute);
 }
+.hero__lead { display: grid; justify-items: start; gap: 18px; }
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px 11px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--lav);
+  color: var(--ink);
+  font: 600 12px/1 var(--mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color .3s;
+}
+.hero__cta b { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--ink); color: var(--lav); font-weight: 500; font-size: 11px; }
+.hero__cta i { font-style: normal; font-size: 14px; transition: transform .4s var(--ease); }
+.hero__cta:hover { background: var(--paper); }
+.hero__cta:hover i { transform: translate(3px, -3px); }
 .hero__cue {
   display: flex;
   flex-direction: column;
@@ -947,6 +968,59 @@ button { font: inherit; color: inherit; }
   transition: background-color .3s, color .3s, border-color .3s;
 }
 .social a:hover { background: var(--paper); color: var(--ink); border-color: var(--paper); }
+
+/* ---------- PROJECTS panel ---------- */
+.projects {
+  width: min(780px, calc(100vw - 32px));
+  max-height: calc(100svh - 48px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background: var(--ink-2);
+  color: var(--paper);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.projects::backdrop { background: rgba(6, 5, 10, .74); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.projects[open] { animation: projects-in .5s var(--ease); }
+@keyframes projects-in { from { opacity: 0; transform: translateY(24px) scale(.98); } }
+.projects, .projects * { cursor: auto !important; }
+.projects a, .projects button { cursor: pointer !important; }
+.projects__inner { padding: clamp(20px, 3.4vw, 36px); }
+.projects__head { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.projects__head .eyebrow { margin: 0; }
+.projects__close { width: 40px; height: 40px; flex: none; border: 1px solid var(--line); border-radius: 50%; background: transparent; color: var(--paper); font-size: 16px; transition: background-color .3s, color .3s; }
+.projects__close:hover { background: var(--paper); color: var(--ink); }
+.projects__title { margin: 18px 0 24px; font-weight: 900; font-stretch: 62%; font-size: clamp(44px, 7vw, 84px); line-height: .86; text-transform: uppercase; }
+.projects__list { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.project {
+  display: grid;
+  grid-template-columns: minmax(0, 250px) minmax(0, 1fr);
+  align-items: center;
+  gap: 22px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--ink-3);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .35s, background-color .35s;
+}
+.project:hover { border-color: rgba(179, 164, 255, .55); background: rgba(179, 164, 255, .08); }
+.project__img { width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; border-radius: 12px; }
+.project__body { display: grid; gap: 8px; padding-right: 8px; }
+.project__meta { font: 500 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--lav); }
+.project__name { font-weight: 800; font-stretch: 80%; font-size: clamp(22px, 2.6vw, 30px); line-height: 1.05; text-transform: uppercase; }
+.project__desc { font-size: 14px; line-height: 1.45; color: var(--mute); }
+.project__cta { display: inline-flex; align-items: center; gap: 8px; margin-top: 4px; font: 500 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+.project__cta i { font-style: normal; color: var(--lav); transition: transform .4s var(--ease); }
+.project:hover .project__cta i { transform: translate(3px, -3px); }
+.projects__more { margin: 18px 0 0; font: 500 11px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--mute); }
+@media (max-width: 600px) {
+  .project { grid-template-columns: 1fr; gap: 14px; }
+  .project__body { padding: 0 4px 6px; }
+}
 
 /* ---------- FOOTER ---------- */
 .footer { padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); }

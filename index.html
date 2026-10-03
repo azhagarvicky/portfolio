@@ -168,6 +168,7 @@
 <header class="nav">
   <a class="nav__logo" href="#top">Azhagar<sup>®</sup></a>
   <nav class="nav__links" aria-label="Sections">
+    <a href="#projects" data-open-projects>Projects</a>
     <a href="#reel">Reel</a>
     <a href="#skills">Skills</a>
     <a href="#about">About</a>
@@ -219,7 +220,12 @@
     <div class="hero__outline" aria-hidden="true" data-split>Azhagar</div>
 
     <div class="hero__foot">
-      <p class="hero__role">AI product manager<br><em>&amp;</em> vibe coder<small>+ UI/UX · Websites · Video</small></p>
+      <div class="hero__lead">
+        <p class="hero__role">AI product manager<br><em>&amp;</em> vibe coder<small>+ UI/UX · Websites · Video</small></p>
+        <button class="hero__cta magnetic" type="button" data-open-projects data-cursor="Open" aria-haspopup="dialog" aria-controls="projects">
+          <span>View projects</span><b aria-label="1 project">1</b><i aria-hidden="true">↗</i>
+        </button>
+      </div>
       <p class="hero__cue" aria-hidden="true"><span>Scroll to roll</span><i></i></p>
       <div class="hero__intro">
         <p class="status"><i></i>Available for freelance</p>
@@ -521,6 +527,32 @@
     </ul>
   </section>
 </main>
+
+<!-- ============ PROJECTS: opened by the hero button, the nav link, or azhagar.com/#projects ============ -->
+<!-- Add a project: copy one <li> below. Links are relative, so they work on UAT and production. -->
+<dialog class="projects" id="projects" aria-labelledby="projects-title" data-lenis-prevent>
+  <div class="projects__inner">
+    <div class="projects__head">
+      <p class="eyebrow">Projects</p>
+      <button class="projects__close" type="button" data-close-projects aria-label="Close projects">✕</button>
+    </div>
+    <h2 class="projects__title" id="projects-title">Live <em>projects</em></h2>
+    <ul class="projects__list">
+      <li>
+        <a class="project" href="aruvi-ice-cream/">
+          <img class="project__img" src="aruvi-ice-cream/images/og.jpg" alt="Aruvi Ice Cream &amp; Aari Works: ice creams, milk, dairy and the shop front" width="1200" height="630" loading="lazy">
+          <span class="project__body">
+            <span class="project__meta">Vibe-coded website · 2026</span>
+            <span class="project__name">Aruvi Ice Cream &amp; Aari Works</span>
+            <span class="project__desc">Website for a neighbourhood shop in Tamil Nadu: Arun Icecreams, Arokya milk and Hatsun dairy, plus Aari embroidery work.</span>
+            <span class="project__cta">Open project <i aria-hidden="true">↗</i></span>
+          </span>
+        </a>
+      </li>
+    </ul>
+    <p class="projects__more">More projects coming soon.</p>
+  </div>
+</dialog>
 
 <footer class="footer">
   <div class="marquee marquee--footer" aria-hidden="true">

@@ -32,6 +32,23 @@
     else portraitImg.addEventListener('error', () => portraitImg.remove(), { once: true });
   }
 
+  // Projects panel: the hero button and nav link open it; azhagar.com/#projects opens it on load
+  let lenisRef = null;
+  const projects = $('#projects');
+  if (projects && typeof projects.showModal === 'function') {
+    const openProjects = (e) => {
+      if (e) { e.preventDefault(); e.stopImmediatePropagation(); }
+      if (projects.open) return;
+      projects.showModal();
+      if (lenisRef) lenisRef.stop();
+    };
+    $$('[data-open-projects]').forEach((el) => el.addEventListener('click', openProjects));
+    $$('[data-close-projects]', projects).forEach((el) => el.addEventListener('click', () => projects.close()));
+    projects.addEventListener('click', (e) => { if (e.target === projects) projects.close(); }); // backdrop
+    projects.addEventListener('close', () => { if (lenisRef) lenisRef.start(); });
+    if (location.hash === '#projects') addEventListener('load', () => openProjects(), { once: true });
+  }
+
   $$('[data-year]').forEach((el) => { el.textContent = new Date().getFullYear(); });
 
   const clocks = $$('[data-clock]');
@@ -169,6 +186,7 @@
   let lenis = null;
   if (typeof window.Lenis === 'function') {
     lenis = new window.Lenis({ lerp: 0.09, smoothWheel: true });
+    lenisRef = lenis;
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((time) => lenis.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);

@@ -1,0 +1,165 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;600&display=block" rel="stylesheet">
+<style>
+:root{--ink:#0C0B11;--paper:#EFEBF7;--lav:#B3A4FF;--rec:#FF4B3E;--live:#4ADE80;--acid:#D7FF3A;
+--display:"Archivo",sans-serif;--serif:"Instrument Serif",serif;--mono:"Geist Mono",monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000}
+#v{position:relative;width:1080px;height:1920px;overflow:hidden;background:var(--ink);color:var(--paper);font-family:var(--display)}
+#cam{position:absolute;inset:0}
+.L{position:absolute;inset:0;display:none}
+.word{position:absolute;left:0;right:0;top:50%;text-align:center;font-weight:900;font-stretch:62%;text-transform:uppercase;line-height:.82;letter-spacing:-.02em;white-space:nowrap}
+.serif{font-family:var(--serif);font-weight:400;font-style:italic;text-transform:none;font-stretch:100%}
+.mono{font-family:var(--mono);font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+.sticker{position:absolute;padding:18px 30px;border-radius:14px;font:700 44px var(--mono);letter-spacing:.06em;text-transform:uppercase;box-shadow:8px 8px 0 #000;border:4px solid #000}
+.marq{position:absolute;left:-400px;white-space:nowrap;font-weight:900;font-stretch:62%;font-size:300px;line-height:1;text-transform:uppercase}
+.walker{position:absolute;left:50%;bottom:180px;transform-origin:50% 100%}
+.card{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 80px}
+.card .n{font:600 60px var(--mono)}
+.card .t{font-weight:900;font-stretch:62%;font-size:300px;line-height:.85;text-transform:uppercase}
+.card .s{font:400 180px var(--serif);font-style:italic;line-height:.9}
+#grain{position:absolute;inset:-100px;opacity:.09;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E")}
+#scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 5px)}
+#flash{position:absolute;inset:0;background:#fff;opacity:0}
+.slice{position:absolute;left:0;right:0;overflow:hidden;display:none}
+#tag{position:absolute;left:50px;right:50px;top:60px;display:flex;justify-content:space-between;font:600 28px var(--mono);letter-spacing:.12em;mix-blend-mode:difference;color:#fff}
+#tag i{display:inline-block;width:20px;height:20px;border-radius:50%;background:var(--rec);margin-right:12px;vertical-align:-2px}
+</style></head>
+<body><div id="v"><div id="cam">
+
+ <!-- 1: word slams -->
+ <div class="L" id="L1"><div class="word" id="w1"></div><div class="mono" id="w1s" style="position:absolute;left:0;right:0;bottom:300px;text-align:center;font-size:34px"></div></div>
+
+ <!-- 2: walk-in -->
+ <div class="L" id="L2" style="background:var(--lav)">
+  <div class="marq" id="m1" style="top:120px;color:var(--ink)"></div>
+  <div class="marq" id="m2" style="top:420px;color:transparent;-webkit-text-stroke:4px var(--ink)"></div>
+  <div class="marq" id="m3" style="top:720px;color:var(--ink)"></div>
+  <img class="walker" id="walker" alt="">
+  <div class="sticker" id="st1" style="left:70px;top:1050px;background:var(--acid);color:#000">AI Product Manager</div>
+  <div class="sticker" id="st2" style="right:70px;top:1250px;background:var(--rec);color:#fff">Vibe Coder</div>
+  <div class="sticker" id="st3" style="left:120px;top:1460px;background:var(--paper);color:#000">★ Made with AI</div>
+ </div>
+
+ <!-- 3: services -->
+ <div class="L" id="L3"><div class="card" id="card"><span class="n" id="cn"></span><span class="t" id="ct"></span><span class="s" id="cs"></span></div></div>
+
+ <!-- 4: tools rapid fire -->
+ <div class="L" id="L4" style="background:var(--ink)">
+  <div class="mono" id="tc" style="position:absolute;left:0;right:0;top:520px;text-align:center;font-size:40px;color:var(--lav)"></div>
+  <div class="word" id="tw" style="font-size:200px"></div>
+  <div id="burst"></div>
+ </div>
+
+ <!-- 5: manifesto strobe -->
+ <div class="L" id="L5"><div class="word" id="w5"></div></div>
+
+ <!-- 6: end card -->
+ <div class="L" id="L6" style="background:var(--ink)">
+  <div class="word" id="e1" style="top:640px;font-size:290px">Azhagar</div>
+  <div class="word serif" id="e2" style="top:930px;font-size:110px;color:var(--lav)">builds what's next.</div>
+  <div class="mono" id="e3" style="position:absolute;left:0;right:0;top:1210px;text-align:center;font-size:64px">azhagar.com →</div>
+  <div class="sticker" id="e4" style="left:50%;top:1400px;background:var(--live);color:#000">● Available now</div>
+ </div>
+
+</div>
+<div class="slice" id="sl1"></div><div class="slice" id="sl2"></div>
+<div id="flash"></div><div id="scan"></div><div id="grain"></div>
+<div id="tag"><span><i></i>AZHAGAR / AD</span><span id="tcode">00:00</span></div>
+</div>
+<script>
+const DUR=15,FPS=30,$=id=>document.getElementById(id);
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),p=(t,a,b)=>clamp((t-a)/(b-a));
+const eo=x=>1-Math.pow(1-x,4),back=x=>{const c=2.2;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+const rnd=s=>{const x=Math.sin(s*12.9898)*43758.5453;return x-Math.floor(x)};  // deterministic noise
+const frames=[];for(let i=0;i<100;i++){const im=new Image();im.src=`../assets/walk/${String(i).padStart(3,'0')}.webp`;frames.push(im)}
+
+// ---- timeline of beats (every cut = a hit) ----
+const SLAMS=[ // [start,end,text,bg,fg,size,sub,serif]
+ [0.00,0.55,"Ready?","#000","#fff",150,"",1],
+ [0.55,1.05,"Ideas.","var(--lav)","var(--ink)",330,"01 — think"],
+ [1.05,1.55,"Products.","var(--rec)","#fff",240,"02 — build"],
+ [1.55,2.05,"Shipped.","var(--paper)","var(--ink)",320,"03 — launch"],
+ [2.05,2.45,"With AI.","#000","var(--acid)",330,"",0],
+];
+const SV=[["01","AI product","management","var(--acid)","#000"],["02","Vibe","coding","var(--ink)","var(--lav)"],["03","Problem","solving","var(--rec)","#fff"],["04","UI / UX","design","var(--paper)","var(--ink)"],["05","Video","editing","var(--lav)","var(--ink)"]];
+const SV0=5.6,SVD=0.6;
+const TOOLS=["Claude","ChatGPT","Figma","Figma Make","Jira","Confluence","Git & GitHub","HTML/CSS/JS","Premiere Pro","After Effects","DaVinci","Photoshop","Illustrator","Lightroom","Vibe coding"];
+const T0=8.6,TD=0.14;
+const MAN=[["No fluff.","#fff","#000"],["Just","var(--rec)","#fff"],["Ship.","var(--acid)","#000"],["Ship.","#000","var(--acid)"],["Ship.","var(--lav)","var(--ink)"]];
+const M0=11.3,MD=0.34;
+const CUTS=[0.55,1.05,1.55,2.05,2.45,...SV.map((_,i)=>SV0+i*SVD),T0,...TOOLS.map((_,i)=>T0+i*TD).filter((_,i)=>i%3==0),T0+TOOLS.length*TD,...MAN.map((_,i)=>M0+i*MD),M0+MAN.length*MD];
+const marqTxt=("AZHAGAR ✦ ").repeat(8);['m1','m2','m3'].forEach(i=>$(i).textContent=marqTxt);
+$('burst').innerHTML=TOOLS.map(t=>`<div class="sticker" style="font-size:30px;padding:12px 22px;left:50%;top:50%;background:var(--paper);color:#000">${t}</div>`).join('');
+const bursts=[...$('burst').children];
+
+function show(id,on){$(id).style.display=on?'block':'none';return on}
+function lastCut(t){let c=-9;for(const x of CUTS)if(x<=t&&x>c)c=x;return t-c}
+
+window.render=function(t){
+ const f=Math.round(t*FPS);
+ $('tcode').textContent=`00:${String(Math.floor(t)).padStart(2,'0')}:${String(f%FPS).padStart(2,'0')}`;
+ const dc=lastCut(t);            // time since last hit
+ const hit=Math.max(0,1-dc/0.22); // 1 at a cut, decays
+ // camera punch + shake
+ const sh=hit*24;$('cam').style.transform=`translate(${(rnd(f)-.5)*sh}px,${(rnd(f+7)-.5)*sh}px) scale(${1+hit*.06})`;
+ // RGB split
+ const rg=hit*16+2;$('cam').style.filter=`drop-shadow(${rg}px 0 0 rgba(255,40,90,.75)) drop-shadow(${-rg}px 0 0 rgba(40,230,255,.75))`;
+ $('flash').style.opacity=dc<0.07?0.55:0;
+ $('grain').style.transform=`translate(${rnd(f*3)*80-40}px,${rnd(f*5)*80-40}px)`;
+ // glitch slices on hits
+ [['sl1',1],['sl2',2]].forEach(([id,k])=>{const el=$(id);if(hit>.45){el.style.display='block';const y=rnd(f*k+3)*1700;el.style.top=y+'px';el.style.height=(30+rnd(f*k)*120)+'px';
+   el.style.background=`rgba(${k==1?'255,75,62':'179,164,255'},.85)`;el.style.mixBlendMode='difference';el.style.transform=`translateX(${(rnd(f+k)-.5)*200}px)`}else el.style.display='none'});
+
+ // 1 slams 0–2.45
+ if(show('L1',t<2.45)){const s=SLAMS.find(s=>t>=s[0]&&t<s[1])||SLAMS[0];
+  $('L1').style.background=s[3];const w=$('w1');w.textContent=s[2];w.style.color=s[4];w.style.fontSize=s[5]+'px';
+  w.className='word'+(s[7]?' serif':'');
+  const k=p(t,s[0],s[0]+.18);w.style.transform=`translateY(-50%) scale(${1.6-back(k)*.6})`;w.style.opacity=clamp(k*4);
+  $('w1s').textContent=s[6];$('w1s').style.color=s[4];
+  if(s[2]==="Ready?"){w.style.opacity=(Math.floor(t*10)%2)?1:.2}}
+
+ // 2 walk-in 2.45–5.6 with speed ramp
+ if(show('L2',t>=2.45&&t<5.6)){const k=p(t,2.45,5.6);
+  const ramp=k<.3?k/.3*.55:k<.7?.55+(k-.3)/.4*.15:.7+(k-.7)/.3*.3; // fast · slow-mo · fast
+  const fi=Math.min(99,Math.floor(ramp*99));const w=$('walker');if(w.dataset.f!=fi){w.src=frames[fi].src;w.dataset.f=fi}
+  w.style.transform=`translateX(-50%) scale(${1.25+ramp*.45})`;
+  $('m1').style.transform=`translateX(${-t*420%1300}px) rotate(-6deg)`;$('m2').style.transform=`translateX(${-1300+t*300%1300}px) rotate(-6deg)`;$('m3').style.transform=`translateX(${-t*520%1300}px) rotate(-6deg)`;
+  [['st1',3.0,-8],['st2',3.4,7],['st3',3.8,-4]].forEach(([id,a,r])=>{const q=p(t,a,a+.25);$(id).style.transform=`rotate(${r}deg) scale(${back(q)})`;$(id).style.opacity=q>0?1:0});
+  $('L2').style.background=(t>4.1&&t<4.18)?'var(--acid)':'var(--lav)';}
+
+ // 3 services
+ if(show('L3',t>=SV0&&t<T0)){const i=Math.min(4,Math.floor((t-SV0)/SVD));const s=SV[i];const k=eo(p(t,SV0+i*SVD,SV0+i*SVD+.2));
+  $('L3').style.background=s[3];$('card').style.color=s[4];
+  $('cn').textContent=s[0]+" / 05";$('ct').textContent=s[1];$('cs').textContent=s[2];
+  $('ct').style.fontSize=(s[1].length>8?220:300)+'px';
+  $('ct').style.transform=`translateX(${(1-k)*(i%2?-900:900)}px)`;$('cs').style.transform=`translateX(${(1-k)*(i%2?600:-600)}px)`;
+  $('cn').style.opacity=k;}
+
+ // 4 tools rapid fire then burst
+ if(show('L4',t>=T0&&t<M0)){const n=Math.floor((t-T0)/TD);const end=T0+TOOLS.length*TD;
+  if(t<end){const tw=$('tw');tw.style.display='block';tw.textContent=TOOLS[n];tw.style.color=n%2?'var(--lav)':'var(--paper)';
+   tw.style.fontSize=(TOOLS[n].length>9?150:210)+'px';tw.style.transform=`translateY(-50%) scale(${1.15-p(t,T0+n*TD,T0+n*TD+TD)*.15})`;
+   $('tc').textContent=`Tool ${String(n+1).padStart(2,'0')} / ${TOOLS.length}`;$('tc').style.top='520px';$('tc').style.fontSize='40px';bursts.forEach(b=>b.style.opacity=0)}
+  else{$('tw').style.display='none';$('tc').textContent=`${TOOLS.length} tools. One workflow.`;$('tc').style.top='1640px';$('tc').style.fontSize='52px';
+   const k=eo(p(t,end,end+.6));bursts.forEach((b,i)=>{const a=i/TOOLS.length*Math.PI*2+.3,r=k*(300+rnd(i)*220);
+    b.style.opacity=1;b.style.transform=`translate(-50%,-50%) translate(${Math.cos(a)*r}px,${Math.sin(a)*r*1.6}px) rotate(${(rnd(i+9)-.5)*30*k}deg) scale(${.4+k*.8})`});}}
+
+ // 5 manifesto
+ if(show('L5',t>=M0&&t<M0+MAN.length*MD)){const i=Math.min(MAN.length-1,Math.floor((t-M0)/MD));const m=MAN[i];
+  $('L5').style.background=m[1];const w=$('w5');w.textContent=m[0];w.style.color=m[2];w.style.fontSize=(i==0?230:380)+'px';
+  const k=p(t,M0+i*MD,M0+i*MD+.12);w.style.transform=`translateY(-50%) scale(${1.4-back(k)*.4}) rotate(${i>=2?(i%2?-3:3):0}deg)`;}
+
+ // 6 end card
+ if(show('L6',t>=M0+MAN.length*MD)){const t0=M0+MAN.length*MD;
+  const a=eo(p(t,t0,t0+.35));$('e1').style.transform=`translateY(-50%) scale(${1.5-a*.5})`;$('e1').style.opacity=a;
+  $('e1').style.letterSpacing=(1-a)*.3+'em';
+  const b=eo(p(t,t0+.35,t0+.75));$('e2').style.transform=`translateY(${-50+(1-b)*60}%)`;$('e2').style.opacity=b;
+  const c=eo(p(t,t0+.7,t0+1.0));$('e3').style.opacity=c;$('e3').style.transform=`translateY(${(1-c)*40}px)`;
+  const d=p(t,t0+1.0,t0+1.3);$('e4').style.transform=`translateX(-50%) rotate(-4deg) scale(${back(d)})`;$('e4').style.opacity=d>0?1:0;}
+};
+window.CUTS=CUTS;
+window.ready=Promise.all([document.fonts.ready,...frames.map(im=>im.decode().catch(()=>{}))]);
+render(0);
+</script></body></html>
